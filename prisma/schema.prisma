@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  role        Role     @default(CLIENT)
+  createdAt   DateTime @default(now())
+
+  // define one-to-many relationship with clients
+  clients     Client[]
+  // define one-to-many relationship with articles
+  articles    Article[]
+}
+
+model Client {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  email       String
+  phoneNumber String?
+  address     Address  @relation(fields: [addressId], references: [id])
+  company     Company  @relation(fields: [companyId], references: [id])
+  projects    Project[]
+  createdAt   DateTime @default(now())
+
+  // define one-to-many relationship with users
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  // define one-to-many relationship with services
+  services    Service[]
+
+  // Foreign keys
+  addressId   Int
+  companyId   Int
+}
+
+model Service {
+  id          Int      @id @default(autoincrement())
+  name        String
+  price       Float
+  createdAt   DateTime @default(now())
+
+  // define many-to-one relationship with clients
+  client      Client   @relation(fields: [clientId], references: [id])
+  clientId    Int
+}
+
+model Article {
+  id          Int      @id @default(autoincrement())
+  title       String
+  content     String
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+
+  // define many-to-one relationship with users
+  author      User     @relation(fields: [userId], references: [id])
+  userId      Int
+}
+
+model Address {
+  id          Int      @id @default(autoincrement())
+  street      String
+  city        String
+  zipCode     String
+  state       String
+  country     String
+  // define one-to-many relationship with clients
+  clients     Client[]
+}
+
+model Company {
+  id          Int      @id @default(autoincrement())
+  name        String
+  industry    String
+  website     String
+  size        String 
+  // define one-to-many relationship with clients
+  clients     Client[]
+  // Add other fields as needed
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+  client      Client   @relation(fields: [clientId], references: [id])
+  clientId    Int 
+  startDate   DateTime
+  endDate     DateTime?
+  status      String  @default("Active")
+  // Add other fields as needed
+}
+
+enum Role {
+  CLIENT
+  ADMIN
+}
+
