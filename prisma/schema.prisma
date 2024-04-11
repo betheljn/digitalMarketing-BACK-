@@ -59,6 +59,7 @@ model Article {
   id          Int      @id @default(autoincrement())
   title       String
   content     String
+  picture     String?
   published   Boolean  @default(false)
   createdAt   DateTime @default(now())
 
