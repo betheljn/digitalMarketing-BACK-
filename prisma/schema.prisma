@@ -8,97 +8,100 @@ datasource db {
 }
 
 model User {
-  id          Int      @id @default(autoincrement())
-  email       String   @unique
-  password    String
-  firstName   String
-  lastName    String
-  role        Role     @default(CLIENT)
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  firstName String
+  lastName  String
+  role      Role     @default(CLIENT)
+  createdAt DateTime @default(now())
 
   // define one-to-many relationship with clients
-  clients     Client[]
+  clients   Client[]
   // define one-to-many relationship with articles
-  articles    Article[]
+  articles  Article[]
 }
 
 model Client {
-  id          Int      @id @default(autoincrement())
-  firstName   String
-  lastName    String
-  email       String
-  phoneNumber String?
-  address     Address  @relation(fields: [addressId], references: [id])
-  company     Company  @relation(fields: [companyId], references: [id])
-  projects    Project[]
-  createdAt   DateTime @default(now())
+  id            Int         @id @default(autoincrement())
+  firstName     String
+  lastName      String
+  email         String
+  phoneNumber   String?
+  companyData   CompanyData @relation(fields: [companyDataId], references: [id])
+  projects      Project[]
+  createdAt     DateTime    @default(now())
 
-  // define one-to-many relationship with users
-  user        User     @relation(fields: [userId], references: [id])
-  userId      Int
-  // define one-to-many relationship with services
-  services    Service[]
+  // Define one-to-many relationship with users
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int
 
-  // Foreign keys
-  addressId   Int
-  companyId   Int
+  // Define one-to-many relationship with services
+  services      Service[]
+
+  // Foreign key
+  companyDataId Int
+  @@index([companyDataId], name: "client_companyDataId_index") // Add an index for performance
 }
 
+
 model Service {
-  id          Int      @id @default(autoincrement())
-  name        String
-  price       Float
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  name      String
+  price     Float
+  createdAt DateTime @default(now())
 
   // define many-to-one relationship with clients
-  client      Client   @relation(fields: [clientId], references: [id])
-  clientId    Int
+  client   Client   @relation(fields: [clientId], references: [id])
+  clientId Int
 }
 
 model Article {
-  id          Int      @id @default(autoincrement())
-  title       String
-  content     String
-  picture     String?
-  published   Boolean  @default(false)
-  createdAt   DateTime @default(now())
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  picture   String?
+  published Boolean  @default(false)
+  createdAt DateTime @default(now())
 
   // define many-to-one relationship with users
-  author      User     @relation(fields: [userId], references: [id])
-  userId      Int
+  author  User   @relation(fields: [userId], references: [id])
+  userId  Int
 }
 
-model Address {
-  id          Int      @id @default(autoincrement())
-  street      String
-  city        String
-  zipCode     String
-  state       String
-  country     String
-  // define one-to-many relationship with clients
-  clients     Client[]
-}
-
-model Company {
-  id          Int      @id @default(autoincrement())
-  name        String
-  industry    String
-  website     String
-  size        String 
-  // define one-to-many relationship with clients
-  clients     Client[]
+model CompanyData {
+  id                Int      @id @default(autoincrement())
+  companyName       String   // Name of the company
+  industry          String   // Industry in which the company operates
+  website           String   // Company's website URL
+  size              String   // Company size (e.g., small, medium, large)
+  street            String   // Street address
+  city              String   // City
+  zipCode           String   // ZIP or postal code
+  state             String   // State or province
+  country           String   // Country
+  foundedYear       Int?     // Year the company was founded
+  revenue           Float?   // Annual revenue of the company
+  description       String?  // Brief description of the company
+  services          String[] // Array of services offered by the company
+  budget            Float?   // Marketing budget of the company
+  marketingChannels String[] // Array of marketing channels used by the company
+  targetAudience    String?  // Description of the company's target audience
+  competitors       String[] // Array of competitors of the company
+  // Define one-to-many relationship with clients if needed
+  clients Client[]
   // Add other fields as needed
 }
 
 model Project {
-  id          Int      @id @default(autoincrement())
+  id          Int       @id @default(autoincrement())
   name        String
   description String?
-  client      Client   @relation(fields: [clientId], references: [id])
-  clientId    Int 
+  client      Client    @relation(fields: [clientId], references: [id])
+  clientId    Int
   startDate   DateTime
   endDate     DateTime?
-  status      String  @default("Active")
+  status      String    @default("Active")
   // Add other fields as needed
 }
 

@@ -55,35 +55,36 @@ router.post("/register/admin", async (req, res, next) => {
 });
 
 router.post("/login", async (req, res, next) => {
-    try {
+  try {
       const { email, password } = req.body;
-  
+
       // Retrieve user from the database
       const user = await prisma.user.findUnique({
-        where: { email },
+          where: { email },
       });
-  
+
       if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-    }
-  
+          return res.status(404).json({ error: 'User not found' });
+      }
+
       // Compare the provided password with the hashed password from the database
       const passwordMatch = await bcrypt.compare(password, user.password);
-  
+
       if (!passwordMatch) {
-        return res.status(401).json({ error: 'Invalid credentials' });
-    }
-  
+          return res.status(401).json({ error: 'Invalid credentials' });
+      }
+
       // Passwords match, generate JWT token
       const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET);
-  
+
       // Send token and user data in response
       res.status(200).json({ message: 'Login successful', token, user });
-    } catch (error) {
-        console.error('Error logging in:', error);
-        res.status(500).json({ error: 'An error occurred while logging in' });
-    }
+  } catch (error) {
+      console.error('Error logging in:', error);
+      res.status(500).json({ error: 'An error occurred while logging in' });
+  }
 });
+
 
 router.post("/logout", authenticateUser, async (req, res) => {
     try {

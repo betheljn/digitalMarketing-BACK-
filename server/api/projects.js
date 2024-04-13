@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 const projectsRouter = express.Router();
 
 // Create a new project
-projectsRouter.post('/projects', authenticateUser, authorizeUser(['ADMIN']), async (req, res) => {
+projectsRouter.post('/', authenticateUser, authorizeUser(['ADMIN']), async (req, res) => {
   try {
     const { name, description, clientId, startDate, endDate, status } = req.body;
     

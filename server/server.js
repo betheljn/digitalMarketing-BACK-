@@ -7,6 +7,7 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 require("dotenv").config();
 const bcrypt = require('bcrypt');
+const imageRouter = require('../server/api/imageUpload');
 
 // Create Express app
 const app = express();
@@ -16,6 +17,9 @@ app.use(morgan("dev"));
 
 // CORS middleware
 app.use(cors());
+
+// Mount the imageRouter router
+app.use('/api/imageUpload', imageRouter); // Adjust the mount path as needed
 
 // Body parsing middleware
 app.use(express.json());

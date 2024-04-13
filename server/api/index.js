@@ -66,7 +66,10 @@ apiRouter.use("/imageUpload", imageRouter);
 const projectsRouter = require("./projects");
 apiRouter.use("/projects", projectsRouter);
 
-const usersRouter = require("./users");
-apiRouter.use("/users", usersRouter);
+const clientsRouter = require("./clients");
+apiRouter.use("/clients", clientsRouter);
+
+const companyDataRouter = require("./companyData");
+apiRouter.use("/companyData", companyDataRouter);
 
 module.exports = apiRouter;

@@ -2,15 +2,32 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { PrismaClient } = require('@prisma/client');
 
-const prisma = new PrismaClient();
 const imageRouter = express.Router();
 
 // Define storage for file uploads
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/');
+    // Define the uploads directory path
+    const uploadDir = path.join(__dirname, '../uploads/');
+
+    // Check if the directory exists, if not, create it
+    fs.access(uploadDir, fs.constants.F_OK, (err) => {
+      if (err) {
+        console.error('Directory does not exist, creating it...');
+        fs.mkdir(uploadDir, { recursive: true }, (err) => {
+          if (err) {
+            console.error('Error creating directory:', err);
+          } else {
+            // Set the uploads directory as the destination
+            cb(null, uploadDir);
+          }
+        });
+      } else {
+        // Set the uploads directory as the destination
+        cb(null, uploadDir);
+      }
+    });
   },
   filename: function (req, file, cb) {
     cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
@@ -21,7 +38,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: { fileSize: 5000000 }, // Limit file size to 5MB
-}).single('file');
+}).single('image'); // <-- Change 'file' to 'image'
 
 // Route for handling file uploads
 imageRouter.post('/upload', (req, res) => {
@@ -30,12 +47,25 @@ imageRouter.post('/upload', (req, res) => {
       console.error('Error uploading file:', err);
       return res.status(500).json({ error: 'An error occurred while uploading file' });
     }
-    // File uploaded successfully
     res.status(200).json({ message: 'File uploaded successfully', file: req.file });
   });
 });
 
-// Route for fetching uploaded files
+// Route for listing all uploaded files
+imageRouter.get('/files', (req, res) => {
+  const uploadDir = path.join(__dirname, '../uploads/');
+  fs.readdir(uploadDir, (err, files) => {
+    if (err) {
+      console.error('Error listing files:', err);
+      return res.status(500).json({ error: 'An error occurred while listing files' });
+    }
+    // Filter out directories from the list of files
+    const fileList = files.filter(file => fs.statSync(path.join(uploadDir, file)).isFile());
+    res.status(200).json({ files: fileList });
+  });
+});
+
+// Route for fetching uploaded file
 imageRouter.get('/files/:filename', (req, res) => {
   const filename = req.params.filename;
   const filePath = path.join(__dirname, '../uploads/', filename);
