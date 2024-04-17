@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 
 const { JWT_SECRET } = process.env;
 
-// Set `req.user` if possible
+// Middleware to set `req.user` if possible
 apiRouter.use(async (req, res, next) => {
     const prefix = "Bearer ";
     const auth = req.header("Authorization");
@@ -47,15 +47,26 @@ apiRouter.use(async (req, res, next) => {
         message: `Authorization token must start with ${prefix}`,
       });
     }
-  });
-  
-  apiRouter.use((req, res, next) => {
+});
+
+// Middleware to allow access to articles without authentication
+apiRouter.use("/articles", (req, res, next) => {
+    next(); // Skip authentication for articles endpoint
+});
+
+// Middleware to allow access to contactForm without authentication
+apiRouter.use("/contactForm", (req, res, next) => {
+    next(); // Skip authentication for contactForm endpoint
+});
+
+// Log user if set
+apiRouter.use((req, res, next) => {
     if (req.user) {
       console.log("User is set:", req.user);
     }
   
     next();
-  });
+});
 
 const articleRouter = require("./articles");
 apiRouter.use("/articles", articleRouter);
@@ -71,5 +82,14 @@ apiRouter.use("/clients", clientsRouter);
 
 const companyDataRouter = require("./companyData");
 apiRouter.use("/companyData", companyDataRouter);
+
+const tagsRouter = require("./tags");
+apiRouter.use("/tags", tagsRouter);
+
+const contactRouter = require("./contact");
+apiRouter.use("/contact", contactRouter);
+
+const contactFormRouter = require("./contactForm");
+apiRouter.use("/contactForm", contactFormRouter);
 
 module.exports = apiRouter;

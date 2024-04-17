@@ -44,6 +44,17 @@ model Client {
   @@index([companyDataId], name: "client_companyDataId_index") // Add an index for performance
 }
 
+model Contact {
+  id        Int      @id @default(autoincrement())
+  name      String
+  phone     String?
+  email     String   @unique
+  message   String?
+  contacted Boolean @default(false)
+  adminNotes String?
+  createdAt DateTime @default(now())
+}
+
 
 model Service {
   id        Int      @id @default(autoincrement())
@@ -67,6 +78,7 @@ model Article {
   // define many-to-one relationship with users
   author  User   @relation(fields: [userId], references: [id])
   userId  Int
+  tags    Tag[]   @relation("ArticleTags")
 }
 
 model CompanyData {
@@ -103,6 +115,12 @@ model Project {
   endDate     DateTime?
   status      String    @default("Active")
   // Add other fields as needed
+}
+
+model Tag {
+  id          Int      @id @default(autoincrement())
+  name        String    @unique
+  articles    Article[] @relation("ArticleTags")
 }
 
 enum Role {
