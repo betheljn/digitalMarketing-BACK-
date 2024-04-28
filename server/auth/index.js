@@ -7,27 +7,44 @@ const bcrypt = require("bcrypt");
 const { authenticateUser, authorizeUser } = require("./middleware");
 const { generateVerificationToken } = require("./verificationToken");
 
-router.post("/register", async (req, res, next) => {
-    try {
-      const { username, password, email, firstName, lastName } = req.body;
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      const verificationToken = generateVerificationToken();
-  
-      const newUser = await prisma.user.create({
-        data: {
-          firstName,
-          lastName,
-          email,
-          password: hashedPassword,
+router.post("/register/client", async (req, res, next) => {
+  try {
+    const { email, password, firstName, lastName, phoneNumber, companyData } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new user and corresponding client record
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        firstName,
+        lastName,
+        role: "CLIENT", // Set the role to CLIENT
+        clients: {
+          create: {
+            // Additional client data
+            email,
+            firstName,
+            lastName,
+            phoneNumber,
+            companyData: {
+              create: companyData,
+            },
+            // Add other client fields as needed...
+          },
         },
-      });
-  
-      res.status(201).send({ newUser, message: "New Account Created" });
-    } catch (error) {
-        console.error('Error registering user:', error);
-        res.status(500).json({ error: 'An error occurred while registering the user' });
-    }
+      },
+      include: {
+        // Include the client record in the response
+        clients: true,
+      },
+    });
+
+    res.status(201).send({ newUser, message: "New Client Account Created" });
+  } catch (error) {
+    console.error('Error registering client:', error);
+    res.status(500).json({ error: 'An error occurred while registering the client' });
+  }
 });
 
 router.post("/register/admin", async (req, res, next) => {
@@ -109,6 +126,22 @@ router.get("/profile", authenticateUser, async (req, res) => {
     } catch (error) {
       console.error("Error retrieving user profile:", error);
       res.status(500).json({ error: "An error occurred while retrieving user profile" });
+    }
+  });
+
+  // User route to update their profile
+  router.put("/profile", authenticateUser, async (req, res) => {
+    try {
+      // Update user profile based on the authenticated user's ID
+      const userProfile = await prisma.user.update({
+        where: { id: req.user.id },
+        data: req.body,
+      });
+
+      res.status(200).json({ userProfile });
+    } catch (error) {
+      console.error("Error updating user profile:", error);
+      res.status(500).json({ error: "An error occurred while updating user profile" });
     }
   });
 

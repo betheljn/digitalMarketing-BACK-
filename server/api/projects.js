@@ -53,6 +53,26 @@ projectsRouter.get('/projects/:id', authenticateUser, authorizeUser(['ADMIN']), 
   }
 });
 
+// Get all projects for the authenticated client
+projectsRouter.get('/client/:id', authenticateUser, async (req, res) => {
+  try {
+    const { id } = req.params;
+    // Retrieve the client's ID from the authenticated user data
+    const clientId = req.user.id;
+    
+    // Fetch projects associated with the client's ID
+    const projects = await prisma.project.findMany({
+      where: { client: { id: clientId } } // Use 'client' instead of 'clientId'
+    });
+
+    res.status(200).json(projects);
+  } catch (error) {
+    console.error('Error fetching projects:', error);
+    res.status(500).json({ error: 'An error occurred while fetching projects' });
+  }
+});
+
+
 // Update a project by ID
 projectsRouter.put('/projects/:id', authenticateUser, authenticateUser, authorizeUser(['ADMIN']), async (req, res) => {
   try {

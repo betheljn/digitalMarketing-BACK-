@@ -32,7 +32,7 @@ app.use(express.static(path.join(__dirname, "..", "client/dist")));
 // Mount the articles router before the JWT verification middleware
 app.use("/api/articles", require("./api/articles"));
 app.use("/api/contactForm", require("./api/contactForm"));
-app.use("/auth", require("./auth"));
+app.use("/auth/", require("./auth"));
 
 // JWT Authentication Middleware
 app.use((req, res, next) => {

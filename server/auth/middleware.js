@@ -18,21 +18,22 @@ function authenticateUser(req, res, next) {
 }
 
 const authorizeUser = (allowedRoles) => {
-    return (req, res, next) => {
+  return (req, res, next) => {
       // Check if user is authenticated
       if (!req.user) {
-        return res.status(401).json({ error: 'Unauthorized' });
+          return res.status(401).json({ error: 'Unauthorized' });
       }
-  
+
       // Check if user's role is included in allowedRoles
       if (!allowedRoles.includes(req.user.role)) {
-        return res.status(403).json({ error: 'Forbidden' });
+          return res.status(403).json({ error: 'Forbidden' });
       }
-  
+
       // User is authorized, call next middleware
       next();
-    };
   };
+};
+
 
 module.exports = {
   authenticateUser,

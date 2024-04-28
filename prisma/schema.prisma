@@ -47,9 +47,9 @@ model Client {
 model Contact {
   id        Int      @id @default(autoincrement())
   name      String
-  phone     String?
+  phone     String
   email     String   @unique
-  message   String?
+  message   String
   contacted Boolean @default(false)
   adminNotes String?
   createdAt DateTime @default(now())

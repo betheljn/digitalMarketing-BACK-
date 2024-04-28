@@ -52,6 +52,22 @@ clientsRouter.get('/:id', authenticateUser, authorizeUser(['ADMIN']), async (req
   }
 });
 
+// Get data of the signed-in client
+clientsRouter.get('/me', authenticateUser, authorizeUser(['CLIENT']), async (req, res) => {
+  try {
+    const userId = req.user.id;
+    console.log
+    const client = await prisma.client.findFirst({ where: { userId } });
+    if (!client) {
+      return res.status(404).json({ error: 'Client not found' });
+    }
+    res.status(200).json(client);
+  } catch (error) {
+    console.error('Error fetching client data:', error);
+    res.status(500).json({ error: 'An error occurred while fetching client data' });
+  }
+});
+
 // Update a client by ID
 clientsRouter.put('/:id', authenticateUser, authorizeUser(['ADMIN']), async (req, res) => {
   try {

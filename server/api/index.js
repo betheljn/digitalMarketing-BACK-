@@ -59,6 +59,16 @@ apiRouter.use("/contactForm", (req, res, next) => {
     next(); // Skip authentication for contactForm endpoint
 });
 
+// Middleware to allow access to projects without authentication
+apiRouter.use("/projects/client", (req, res, next) => {
+    next(); // Skip authentication for projects endpoint
+});
+
+// Middleware to allow access to clients without authentication
+apiRouter.use("/clients/me", (req, res, next) => {
+    next(); // Skip authentication for clients endpoint
+})
+
 // Log user if set
 apiRouter.use((req, res, next) => {
     if (req.user) {
